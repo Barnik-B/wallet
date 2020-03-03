@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <logLevel/>
+                <loggerName/>
+                <logstashMarkers/>
+                <mdc/>
+                <message/>
+                <pattern>
+                    <pattern> <!-- we can add some custom fields to be sent with all the log entries.-->
+                        {
+                        "application": "wallet"
+                        }
+                    </pattern>
+                </pattern>
+                <stackTrace/>
+                <threadName/>
+                <timestamp/>
+            </providers>
+        </encoder>
+    </appender>
+
+    <appender name="LOCAL_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%t] %highlight(%-5level) %green(%logger{15}) - %msg%n</pattern>
+        </encoder>
+        <withJansi>true</withJansi>
+    </appender>
+
+    <property name="WALLET_HOME_LOG" value="/home/barnikbanerjee/My Projects/wallet/app.log"/>
+
+    <appender name="FILE-ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${WALLET_HOME_LOG}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/archived/app.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- each archived file, size max 10MB -->
+            <maxFileSize>10MB</maxFileSize>
+            <!-- total size of all archive files, if total size > 20GB,
+				it will delete old archived file -->
+            <totalSizeCap>20GB</totalSizeCap>
+            <!-- 60 days to keep -->
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%d %p %c{1.} [%t] %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <springProfile name="local">
+        <root level="info">
+            <appender-ref ref="FILE-ROLLING"/>
+            <appender-ref ref="LOCAL_CONSOLE"/>
+        </root>
+        <logger name="com.paytm.wallet" level="debug" additivity="false">
+            <appender-ref ref="FILE-ROLLING"/>
+            <appender-ref ref="LOCAL_CONSOLE"/>
+        </logger>
+        <logger name="org.springframework.web.filter.CommonsRequestLoggingFilter" level="debug" additivity="false">
+            <appender-ref ref="FILE-ROLLING"/>
+            <appender-ref ref="LOCAL_CONSOLE"/>
+        </logger>
+    </springProfile>
+
+    <springProfile name="dev | stage | preProd | prod">
+        <root level="info">
+            <appender-ref ref="STDOUT"/>
+        </root>
+    </springProfile>
+</configuration>
