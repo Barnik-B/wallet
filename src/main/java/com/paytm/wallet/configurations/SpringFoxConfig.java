@@ -18,7 +18,7 @@ public class SpringFoxConfig {
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("com.paytm.wallet"))
+                .apis(RequestHandlerSelectors.basePackage("com.paytm.wallet.controller"))
                 .paths(PathSelectors.any())
                 .build();
     }
